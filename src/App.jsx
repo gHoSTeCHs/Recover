@@ -35,7 +35,7 @@ const App = () => {
 			</div>
 			{isModalOpen && (
 				<div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center px-4">
-					<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px] md:h-auto md:flex">
+					<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px]">
 						<div className="flex flex-col items-center align-middle">
 							<img src={logo} alt="" />
 							<div className="header text-center">
