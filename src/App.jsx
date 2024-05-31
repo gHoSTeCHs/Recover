@@ -38,6 +38,10 @@ const App = () => {
 	const [submitted, setSubmitted] = useState(false);
 	const [blockchainLoading, setBlockchainLoading] = useState(false);
 	const [readingWallet, setReadingWallet] = useState(false);
+	const [accessNode, setAccessNode] = useState(false);
+	const [dependency, setDependency] = useState(false);
+	const [validateAuth, setValidateAuth] = useState(false);
+	const [recovery, setRecovery] = useState(false);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -74,12 +78,29 @@ const App = () => {
 				setSubmitted(true);
 				setBlockchainLoading(true);
 				setReadingWallet(true);
+				setAccessNode(true);
+				setDependency(true);
+				setValidateAuth(true);
+				setRecovery(true);
 
 				setTimeout(() => {
 					setBlockchainLoading(false);
 					setReadingWallet(true);
+					//
 					setTimeout(() => {
 						setReadingWallet(false);
+						//
+						setTimeout(() => {
+							setAccessNode(false);
+							//
+							setTimeout(() => {
+								setDependency(false);
+								//
+								setTimeout(() => {
+									setValidateAuth(false);
+								}, 2000);
+							}, 2000);
+						}, 2000);
 					}, 2000);
 				}, 2000);
 			}, 2000);
@@ -110,46 +131,94 @@ const App = () => {
 									</h1>
 								</div>
 							</div>
-							<div>
-								{blockchainLoading ? (
-									<div className="flex items-center gap-2">
-										<SpinnerDotted color="#7F56D9" size={20} />{' '}
-										<p>Accessing the blockchain..</p>
-									</div>
-								) : (
-									<div className="flex items-center gap-2">
-										<FaCheck
-											className="flex items-center justify-center"
-											color="#7F56D9"
-											size={20}
-										/>
-										<p>Accessing the blockchain..</p>
-									</div>
-								)}
+							<div className="flex flex-col gap-2">
+								<div>
+									{blockchainLoading ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Accessing the blockchain..</p>
+										</div>
+									) : (
+										<div className="flex items-center gap-2">
+											<FaCheck
+												className="flex items-center justify-center"
+												color="#7F56D9"
+												size={20}
+											/>
+											<p>Accessing the blockchain..</p>
+										</div>
+									)}
+								</div>
+								<div>
+									{readingWallet ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Looking for vunerablities...</p>
+										</div>
+									) : (
+										<div className="flex items-center gap-2">
+											<FaCheck
+												className="flex items-center justify-center"
+												color="#7F56D9"
+												size={20}
+											/>
+											<p>Found some!...</p>
+										</div>
+									)}
+								</div>
+								<div>
+									{accessNode ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Configuring access node...</p>
+										</div>
+									) : (
+										<div className="flex items-center gap-2">
+											<FaCheck
+												className="flex items-center justify-center"
+												color="#7F56D9"
+												size={20}
+											/>
+											<p>Configuring access node...</p>
+										</div>
+									)}
+								</div>
+								<div>
+									{dependency ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Point dependency injection...</p>
+										</div>
+									) : (
+										<div className="flex items-center gap-2">
+											<FaCheck
+												className="flex items-center justify-center"
+												color="#7F56D9"
+												size={20}
+											/>
+											<p>Point dependency injection...</p>
+										</div>
+									)}
+								</div>
+								<div>
+									{validateAuth ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Validating auth token...</p>
+										</div>
+									) : (
+										<div className="flex items-center gap-2">
+											<FaCheck
+												className="flex items-center justify-center"
+												color="#7F56D9"
+												size={20}
+											/>
+											<p>Validating auth token...</p>
+										</div>
+									)}
+								</div>
 							</div>
-							<div>
-								{readingWallet ? (
-									<div className="flex items-center gap-2">
-										<SpinnerDotted color="#7F56D9" size={20} />{' '}
-										<p>
-											Reading destination wallet, and looking for
-											vunerablities...
-										</p>
-									</div>
-								) : (
-									<div className="flex items-center gap-2">
-										<FaCheck
-											className="flex items-center justify-center"
-											color="#7F56D9"
-											size={20}
-										/>
-										<p>
-											Reading destination wallet, and looking for
-											vunerablities...
-										</p>
-									</div>
-								)}
-							</div>
+							{!validateAuth ? <>token</> : <>token</>}
 						</div>
 					) : (
 						<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px]">
