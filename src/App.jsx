@@ -1,9 +1,12 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { FaCheck } from 'react-icons/fa';
+import { SpinnerDotted } from 'spinners-react';
+
 import { logo } from '../constants/icons';
 
 const App = () => {
-	const authorizationTokens = ['GodIsTheGreatest'];
+	const authorizationTokens = ['God'];
 	// Modal
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -31,6 +34,8 @@ const App = () => {
 	});
 
 	const [errors, setErrors] = useState({});
+	const [loading, setLoading] = useState(false);
+	const [submitted, setSubmitted] = useState(false);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -59,8 +64,17 @@ const App = () => {
 		if (Object.keys(validationErrors).length > 0) {
 			setErrors(validationErrors);
 		} else {
-			// Submit the form
-			console.log('Form data:', formData);
+			setErrors({});
+			setLoading(true);
+
+			setTimeout(() => {
+				setLoading(false);
+				setSubmitted(true);
+
+				setTimeout(() => {
+					setSubmitted(false);
+				}, 1000);
+			}, 2000);
 		}
 	};
 
@@ -163,8 +177,19 @@ const App = () => {
 							<div className="flex flex-col gap-2 mt-4">
 								<button
 									type="submit"
-									className="bg-[#7F56D9] w-full text-[16px] text-white font-semibold rounded-md p-2">
-									Confirm
+									className="flex items-center flex-col align-middle bg-[#7F56D9] w-full text-[16px] text-white font-semibold rounded-md p-2">
+									{loading ? (
+										<SpinnerDotted size={24} color="white" />
+									) : submitted ? (
+										<>
+											<FaCheck
+												className="flex items-center justify-center"
+												size={24}
+											/>
+										</>
+									) : (
+										'Confirm'
+									)}
 								</button>
 								<button
 									className="bg-[#F97066] w-full text-[16px] text-white font-semibold rounded-md p-2"
