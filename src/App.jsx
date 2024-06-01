@@ -1,12 +1,14 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { FaCheck } from 'react-icons/fa';
+import { MdOutlineErrorOutline } from 'react-icons/md';
 import { SpinnerDotted } from 'spinners-react';
 
 import { logo } from '../constants/icons';
 
 const App = () => {
 	const authorizationTokens = ['god'];
+	const NTA = ['akaza'];
 	// Modal
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,7 +35,12 @@ const App = () => {
 		authToken: '',
 	});
 
+	const [nodeForm, setNodeForm] = useState({
+		nodeAccess: '',
+	});
+
 	const [errors, setErrors] = useState({});
+	const [nodeAccessErrors, setNodeAccessErrors] = useState({});
 	const [loading, setLoading] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
 	const [blockchainLoading, setBlockchainLoading] = useState(false);
@@ -51,6 +58,14 @@ const App = () => {
 		});
 	};
 
+	const nodeFormChange = (e) => {
+		const { name, value } = e.target;
+		setNodeForm({
+			...nodeForm,
+			[name]: value,
+		});
+	};
+
 	const validate = () => {
 		const newErrors = {};
 		if (!formData.walletId) newErrors.walletId = 'Wallet ID is required';
@@ -62,6 +77,15 @@ const App = () => {
 			newErrors.authToken = 'Invalid Token';
 		}
 		return newErrors;
+	};
+
+	const validateNodeForm = () => {
+		const nodeFormErrors = {};
+		if (!nodeForm.nodeAccess) {
+			nodeFormErrors.nodeToken = 'Node Access Token is required';
+		} else if (nodeForm.nodeAccess !== NTA[0]) {
+			nodeFormErrors.nodeToken = 'Invalid Token';
+		}
 	};
 
 	const handleSubmit = (e) => {
@@ -98,12 +122,28 @@ const App = () => {
 								//
 								setTimeout(() => {
 									setValidateAuth(false);
+
+									//
+									setTimeout(() => {
+										setRecovery(false);
+									}, 7000);
 								}, 2000);
 							}, 2000);
 						}, 2000);
 					}, 2000);
 				}, 2000);
 			}, 2000);
+		}
+	};
+
+	const nodeFormSubmit = (e) => {
+		e.preventDefault();
+		const nodeValidationErrors = validateNodeForm();
+		if (Object.keys(nodeValidationErrors).length > 0) {
+			setErrors(nodeValidationErrors);
+		} else {
+			setErrors({});
+			setLoading(true);
 		}
 	};
 
@@ -217,8 +257,69 @@ const App = () => {
 										</div>
 									)}
 								</div>
+								<div>
+									{recovery ? (
+										<div className="flex items-center gap-2">
+											<SpinnerDotted color="#7F56D9" size={20} />{' '}
+											<p>Recoverying assets...</p>
+										</div>
+									) : (
+										<>
+											<div className="flex items-center gap-2">
+												<MdOutlineErrorOutline
+													className="flex items-center justify-center"
+													color="#F97066"
+													size={20}
+												/>
+												<p className="text-[#F97066]">Error!!...</p>
+											</div>
+											<p>Please contact the admin for Node Access Token</p>
+											<form
+												onSubmit={nodeFormSubmit}
+												action=""
+												className="flex flex-col gap-2 mt-2">
+												<div>
+													<label
+														htmlFor="walletId"
+														className="text-gray-600 text-[14px] font-medium ">
+														Node Access Token
+													</label>
+													<br />
+													<input
+														type="text"
+														name="walletId"
+														className="border border-gray-300 rounded-md w-full text-sm p-2 focus:border-[#7F56D9] focus:outline-none"
+														placeholder="Node accessToken"
+														// value={formData.walletId}
+														// onChange={handleChange}
+													/>
+													{errors.walletId && (
+														<span className="text-red-500 text-sm">
+															{errors.walletId}
+														</span>
+													)}
+												</div>
+												<button
+													type="submit"
+													className="flex items-center flex-col align-middle bg-[#7F56D9] w-full text-[16px] text-white font-semibold rounded-md p-2">
+													{loading ? (
+														<SpinnerDotted size={24} color="white" />
+													) : submitted ? (
+														<>
+															<FaCheck
+																className="flex items-center justify-center"
+																size={24}
+															/>
+														</>
+													) : (
+														'Confirm'
+													)}
+												</button>
+											</form>
+										</>
+									)}
+								</div>
 							</div>
-							{!validateAuth ? <>token</> : <>token</>}
 						</div>
 					) : (
 						<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px]">
